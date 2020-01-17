@@ -3,13 +3,13 @@ from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from models import setup_db, Movie, Actor
+from auth import AuthError, requires_auth
 
 def create_app(test_config=None):
   # create and configure the app
     app = Flask(__name__)
     setup_db(app)
 
-    print('DDDDDDDDDDD',os.environ['ENV'])
     # setup cross origin
     CORS(app)
 
@@ -19,15 +19,14 @@ def create_app(test_config=None):
         return 'Welcome to casting agency'
 
     @app.route('/movies')
-    def get_movies():
+    @requires_auth('get:movies')
+    def get_movies(jwt):
         movies = Movie.query.all()
 
         return jsonify({
             'success': True,
             'movies': [movie.format() for movie in movies],
         }), 200
-
-
 
     return app
 
