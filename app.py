@@ -18,6 +18,8 @@ def create_app(test_config=None):
     def welcome():
         return 'Welcome to casting agency'
 
+    """Movies Routes"""
+
     @app.route('/movies')
     @requires_auth('get:movies')
     def get_movies(jwt):
@@ -28,6 +30,18 @@ def create_app(test_config=None):
             'movies': [movie.format() for movie in movies],
         }), 200
 
+    @app.route('/movies/<int:id>')
+    @requires_auth('get:movies')
+    def get_movie_by_id(jwt, id):
+        movie = Movie.query.get(id)
+
+        if movie is None:
+            abort(404)
+        else:
+            return jsonify({
+                'success': True,
+                'movie': movie.format(),
+            }), 200
 
     # Error Handling
     @app.errorhandler(422)

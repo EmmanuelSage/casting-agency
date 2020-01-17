@@ -26,7 +26,7 @@ class CastingAgencyTest(unittest.TestCase):
         pass
 
     #  GET /movies Test
-    def test_get_movies(self):
+    def test_get_all_movies(self):
         response = self.client().get(
             '/movies',
             headers={'Authorization': f'Bearer {CASTING_ASSISTANT}'}
@@ -36,6 +36,30 @@ class CastingAgencyTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['movies'])
+
+    # Test to get a specific movie
+    def test_get_movie_by_id(self):
+        response = self.client().get(
+            '/movies/1',
+            headers={"Authorization": "Bearer " + CASTING_ASSISTANT}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['movie'])
+        self.assertEqual(data['movie']['title'], 'Terminator Dark Fate')
+
+    # tests for an invalid id to get a specific movie
+    def test_404_get_movie_by_id(self):
+        response = self.client().get(
+            '/movies/100',
+            headers={"Authorization": "Bearer " + CASTING_ASSISTANT}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['error'], 404)
+        self.assertEqual(data['message'], 'resource not found')
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
