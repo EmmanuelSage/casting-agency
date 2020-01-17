@@ -20,6 +20,7 @@ def create_app(test_config=None):
 
     """Movies Routes"""
 
+    # Route for getting all movies
     @app.route('/movies')
     @requires_auth('get:movies')
     def get_movies(jwt):
@@ -30,6 +31,7 @@ def create_app(test_config=None):
             'movies': [movie.format() for movie in movies],
         }), 200
 
+    # Route for getting a specific movie
     @app.route('/movies/<int:id>')
     @requires_auth('get:movies')
     def get_movie_by_id(jwt, id):
@@ -42,6 +44,27 @@ def create_app(test_config=None):
                 'success': True,
                 'movie': movie.format(),
             }), 200
+
+    @app.route('/movies', methods=['POST'])
+    @requires_auth('post:movies')
+    def post_movie(jwt):
+        data = request.get_json()
+        title = data.get('title', None)
+        release_date = data.get('release_date', None)
+
+        movie = Movie(title=title, release_date=release_date)
+
+        if title is None or release_date is None:
+            abort(400)
+
+        try:
+            movie.insert()
+            return jsonify({
+                'success': True,
+                'movie': movie.format()
+            }), 201
+        except:
+            abort(500)
 
     # Error Handling
     @app.errorhandler(422)
