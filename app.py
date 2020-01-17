@@ -5,10 +5,15 @@ from flask_cors import CORS
 
 def create_app(test_config=None):
   # create and configure the app
-  app = Flask(__name__)
-  CORS(app)
+    app = Flask(__name__)
+    CORS(app)
 
-  return app
+    # Setup home route
+    @app.route('/')
+    def welcome():
+        return 'Welcome to capstone agency'
+
+    return app
 
 APP = create_app()
 
