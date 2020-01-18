@@ -66,6 +66,33 @@ def create_app(test_config=None):
         except:
             abort(500)
 
+    @app.route('/movies/<int:id>', methods=['PATCH'])
+    @requires_auth('patch:movies')
+    def patch_movie(jwt, id):
+        data = request.get_json()
+        title = data.get('title', None)
+        release_date = data.get('release_date', None)
+
+        movie = Movie.query.get(id)
+
+        if movie is None:
+            abort(404)
+
+        if title is None or release_date is None:
+            abort(400)
+
+        movie.title = title
+        movie.release_date = release_date
+
+        try:
+            movie.update()
+            return jsonify({
+                'success': True,
+                'movie': movie.format()
+            }), 200
+        except:
+            abort(500)
+
     # Error Handling
     @app.errorhandler(422)
     def unprocessable(error):

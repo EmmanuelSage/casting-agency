@@ -104,6 +104,58 @@ class CastingAgencyTest(unittest.TestCase):
         self.assertEqual(data['code'], 'unauthorized')
         self.assertEqual(data['description'], 'Permission not found.')
 
+    # Test to Update a movie
+    def test_patch_movie(self):
+        response = self.client().patch(
+            '/movies/1',
+            json={'title': 'Revelations', 'release_date': "2019-11-12"},
+            headers={'Authorization': f'Bearer {EXECUTIVE_PRODUCER}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['movie'])
+        self.assertEqual(data['movie']['title'], 'Revelations')
+        self.assertEqual(data['movie']['release_date'], 'Tue, 12 Nov 2019 00:00:00 GMT')
+
+    # Test to create a movie if no data is sent
+    def test_400_patch_movie(self):
+        response = self.client().patch(
+            '/movies/1',
+            json={},
+            headers={'Authorization': f'Bearer {EXECUTIVE_PRODUCER}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['error'], 400)
+        self.assertEqual(data['message'], 'bad request')
+
+    # tests for an invalid id to get a specific movie
+    def test_401_patch_movie_unauthorized(self):
+        response = self.client().patch(
+            '/movies/1',
+            json=self.test_movie,
+            headers={'Authorization': f'Bearer {CASTING_ASSISTANT}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(data['code'], 'unauthorized')
+        self.assertEqual(data['description'], 'Permission not found.')
+
+    # tests for an invalid id to get a specific movie
+    def test_404_patch_movie(self):
+        response = self.client().patch(
+            '/movies/12323',
+            json=self.test_movie,
+            headers={'Authorization': f'Bearer {EXECUTIVE_PRODUCER}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['error'], 404)
+        self.assertEqual(data['message'], 'resource not found')
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
