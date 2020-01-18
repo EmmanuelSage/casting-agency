@@ -191,6 +191,168 @@ class CastingAgencyTest(unittest.TestCase):
         self.assertTrue(data['error'], 404)
         self.assertEqual(data['message'], 'resource not found')
 
+    #  GET /Actors Test
+    def test_get_all_actors(self):
+        response = self.client().get(
+            '/actors',
+            headers={'Authorization': f'Bearer {CASTING_ASSISTANT}'}
+        )
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['actors'])
+
+    # Test to get a specific actor
+    def test_get_movie_by_id(self):
+        response = self.client().get(
+            '/actors/1',
+            headers={"Authorization": "Bearer " + CASTING_ASSISTANT}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['actor'])
+        self.assertEqual(data['actor']['name'], 'Will Smith')
+
+    # tests for an invalid id to get a specific movie
+    def test_404_get_actor_by_id(self):
+        response = self.client().get(
+            '/actors/100',
+            headers={"Authorization": "Bearer " + CASTING_ASSISTANT}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['error'], 404)
+        self.assertEqual(data['message'], 'resource not found')
+
+    # Test to create an actor
+    def test_post_actor(self):
+        response = self.client().post(
+            '/actors',
+            json={'name': 'Karl', 'age': 20, "gender": "male"},
+            headers={'Authorization': f'Bearer {EXECUTIVE_PRODUCER}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['actor']['name'], 'Karl')
+        self.assertEqual(data['actor']['age'], 20)
+        self.assertEqual(data['actor']['gender'], 'male')
+
+    # Test to create an actor if no data is sent
+    def test_400_post_actor(self):
+        response = self.client().post(
+            '/actors',
+            json={},
+            headers={'Authorization': f'Bearer {EXECUTIVE_PRODUCER}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['error'], 400)
+        self.assertEqual(data['message'], 'bad request')
+
+    #
+    def test_401_post_actor_unauthorized(self):
+        response = self.client().post(
+            '/actors',
+            json={'name': 'Mary', 'age': 22, "gender": "female"},
+            headers={'Authorization': f'Bearer {CASTING_ASSISTANT}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(data['code'], 'unauthorized')
+        self.assertEqual(data['description'], 'Permission not found.')
+
+    # Test to Update a movie
+    def test_patch_actor(self):
+        response = self.client().patch(
+            '/actors/1',
+            json={'name': 'Mariam', 'age': 25, "gender": "female"},
+            headers={'Authorization': f'Bearer {EXECUTIVE_PRODUCER}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['actor']['name'], 'Mariam')
+        self.assertEqual(data['actor']['age'], 25)
+        self.assertEqual(data['actor']['gender'], 'female')
+
+    # Test to create a actor if no data is sent
+    def test_400_patch_actor(self):
+        response = self.client().patch(
+            '/actors/1',
+            json={},
+            headers={'Authorization': f'Bearer {EXECUTIVE_PRODUCER}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['error'], 400)
+        self.assertEqual(data['message'], 'bad request')
+
+    # tests for an invalid id to get a specific movie
+    def test_401_patch_actor_unauthorized(self):
+        response = self.client().patch(
+            '/actors/1',
+            json={'name': 'John', 'age': 25, "gender": "male"},
+            headers={'Authorization': f'Bearer {CASTING_ASSISTANT}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(data['code'], 'unauthorized')
+        self.assertEqual(data['description'], 'Permission not found.')
+
+    # tests for an invalid id to get a specific movie
+    def test_404_patch_actor(self):
+        response = self.client().patch(
+            '/actor/12323',
+            json={'name': 'Johnathan', 'age': 25, "gender": "male"},
+            headers={'Authorization': f'Bearer {EXECUTIVE_PRODUCER}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['error'], 404)
+        self.assertEqual(data['message'], 'resource not found')
+
+    # tests for an invalid id to get a specific movie
+    def test_delete_actor(self):
+        response = self.client().delete(
+            '/actors/2',
+            headers={'Authorization': f'Bearer {EXECUTIVE_PRODUCER}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['message'])
+
+    # tests for an invalid id to get a specific movie
+    def test_401_delete_actor(self):
+        response = self.client().delete(
+            '/actors/2',
+            headers={'Authorization': f'Bearer {CASTING_ASSISTANT}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(data['code'], 'unauthorized')
+        self.assertEqual(data['description'], 'Permission not found.')
+
+    # tests for an invalid id to get a specific movie
+    def test_404_delete_actor(self):
+        response = self.client().delete(
+            '/actors/22321',
+            headers={'Authorization': f'Bearer {EXECUTIVE_PRODUCER}'}
+        )
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['error'], 404)
+        self.assertEqual(data['message'], 'resource not found')
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
