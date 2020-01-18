@@ -2,7 +2,7 @@ import os
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from models import setup_db, Movie, Actor
+from models import setup_db, Movie, Actor, db
 from auth import AuthError, requires_auth
 
 def create_app(test_config=None):
@@ -63,7 +63,7 @@ def create_app(test_config=None):
                 'success': True,
                 'movie': movie.format()
             }), 201
-        except:
+        except Exception:
             abort(500)
 
     @app.route('/movies/<int:id>', methods=['PATCH'])
@@ -90,7 +90,24 @@ def create_app(test_config=None):
                 'success': True,
                 'movie': movie.format()
             }), 200
-        except:
+        except Exception:
+            abort(500)
+
+    @app.route('/movies/<int:id>', methods=['DELETE'])
+    @requires_auth('delete:movies')
+    def delete_movie(jwt, id):
+        movie = Movie.query.get(id)
+
+        if movie is None:
+            abort(404)
+        try:
+            movie.delete()
+            return jsonify({
+                'success': True,
+                'message': f'movie id {movie.id}, titled {movie.title} was deleted',
+            })
+        except Exception:
+            db.session.rollback()
             abort(500)
 
     # Error Handling

@@ -156,6 +156,41 @@ class CastingAgencyTest(unittest.TestCase):
         self.assertTrue(data['error'], 404)
         self.assertEqual(data['message'], 'resource not found')
 
+    # tests for an invalid id to get a specific movie
+    def test_delete_movie(self):
+        response = self.client().delete(
+            '/movies/2',
+            headers={'Authorization': f'Bearer {EXECUTIVE_PRODUCER}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['message'])
+
+    # tests for an invalid id to get a specific movie
+    def test_401_delete_movie(self):
+        response = self.client().delete(
+            '/movies/2',
+            headers={'Authorization': f'Bearer {CASTING_ASSISTANT}'}
+        )
+        data = json.loads(response.data)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(data['code'], 'unauthorized')
+        self.assertEqual(data['description'], 'Permission not found.')
+
+    # tests for an invalid id to get a specific movie
+    def test_404_delete_movie(self):
+        response = self.client().delete(
+            '/movies/22321',
+            headers={'Authorization': f'Bearer {EXECUTIVE_PRODUCER}'}
+        )
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(data['error'], 404)
+        self.assertEqual(data['message'], 'resource not found')
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
