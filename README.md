@@ -82,6 +82,14 @@ To start tests, run
 source test.sh
 ```
 
+
+## Documentation
+The Endpoints were documented using postman collections
+- open `casting-agency-Heroku.postman_collection.json` in postman to test with live url on heroku
+- open `casting-agency-Localhost.postman_collection.json` in postman to test with Localhost
+
+Note: The tokens used would expire in 24hrs, use your own token as described in the Athentication section.
+
 ### Error Handling
 
 - 401 errors due to RBAC are returned as
