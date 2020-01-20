@@ -14,7 +14,8 @@ database_url = test_url if env == 'test' else db_url
 # instanciate SQLALchemy as db
 db = SQLAlchemy()
 
-# Setup config do
+
+# Setup database config
 def setup_db(app, database_url=database_url):
     """setup database configuration for flask application"""
     app.config["SQLALCHEMY_DATABASE_URI"] = database_url
@@ -22,7 +23,8 @@ def setup_db(app, database_url=database_url):
     db.app = app
     db.init_app(app)
 
-# Setup Movie model inherits from db.mode;
+
+# Setup Movie model inherits from db.model;
 class Movie(db.Model):
     __tablename__ = 'movies'
 
@@ -49,6 +51,7 @@ class Movie(db.Model):
             }
 
 
+# Setup Actor model inherits from db.model;
 class Actor(db.Model):
     __tablename__ = 'actors'
 
